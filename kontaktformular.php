@@ -11,49 +11,32 @@ $fejlbesked = '';
 $fejl = 0;
 $success = 'Indtast dine oplysninger i kontaktformularen herunder!';
 
+
+
 if( $_POST ) 
 {
-    if( isset( $_POST['navn'] ) )
-    {
-        if (empty( $_POST['navn']))
-        {
-            $fejlnavn = "Navn - Feltet er ikke udfyldt!";
-            $fejl++;
-        }
-        else
-        {
-            if (is_numeric ( $_POST['navn']))
-            {
-                $fejlnavn = "Navn - Feltet skal udfyldes med bogstaver!";
-                $fejl++;
-            }
-            else
-            {
-                $navn = $_POST['navn'];
-            }
-        }
+    if (empty($_POST["navn"])) {
+    $fejlnavn = "Du skal indtaste dit navn";
+    $fejl++;
+  } else {
+    $navn = test_input($_POST["navn"]);
+    // check if name only contains letters and whitespace
+    if (!preg_match("/^[a-zA-Z ]*$/",$navn)) {
+      $fejlnavn = "Du må kun indtaste bogstaver og mellemrum"; 
+      $fejl++;
     }
+  }
 
-    if( isset( $_POST['mail'] ) )
-    {
-        if (empty( $_POST['mail']))
-        {
-            $fejlmail = "Mail - Feltet er ikke udfyldt!";
-            $fejl++;
-        }
-        else
-        {
-            if(!filter_var($mail, FILTER_VALIDATE_EMAIL) === false )
-            {
-                $fejlmail = "Mail - Din mail er ikke gyldig!";
-                $fejl++;
-            }
-            else 
-            {
-                $mail = $_POST['mail'];
-            }
-        }
+    if (empty($_POST['mail'])) {
+    $fejlmail = "Mail - Feltet er ikke udfyldt";
+    $fejl++;
+  } else {
+    $mail = test_input($_POST['mail']);
+    if (!filter_var($mail, FILTER_VALIDATE_EMAIL)) {
+      $fejlmail = "Mail - Ugyldig Email";
+      $fejl++; 
     }
+  } 
 
     if( isset( $_POST['emne'] ) )
     {
@@ -85,15 +68,7 @@ if( $_POST )
         }
         else
         {
-            if (strlen($besked) > 2 )
-            {
-                $fejlbesked = "Besked - din besked er for kort!";
-                $fejl++;
-            }
-            else 
-            {
-                $besked = $_POST['besked'];
-            }
+            $besked = $_POST['besked'];
         }
     }
 
@@ -106,21 +81,28 @@ if( $_POST )
         $success = "Formularen er udfyldt korrekt!";
     }
 }
+
+function test_input($data) {
+  $data = trim($data);
+  $data = stripslashes($data);
+  $data = htmlspecialchars($data);
+  return $data;
+}
 ?>
 
 <p><?php echo $success; ?></p>
 
 <form action="" method="post">
     <label>Navn:</label>
-    <input type="text" name="navn" value="<?php echo $navn; ?>"
+    <input type="text" name="navn" value="<?php echo $navn; ?>" >
     <p><?php echo $fejlnavn; ?></p>
 
     <label>E-mail:</label>
-    <input type="text" name="mail" value="<?php echo $mail; ?>"
+    <input type="text" name="mail" value="<?php echo $mail; ?>" >
     <p><?php echo $fejlmail; ?></p>
 
     <label>Emne</label>
-    <input type="text" name="emne" value="<?php echo $emne; ?>"
+    <input type="text" name="emne" value="<?php echo $emne; ?>" >
     <p><?php echo $fejlemne; ?></p>
 
     <label>Besked:</label>
@@ -128,4 +110,5 @@ if( $_POST )
     <p><?php echo $fejlbesked; ?></p>
 
     <input type="submit" value="Submit"/>
+
 </form>
